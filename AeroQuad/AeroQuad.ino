@@ -34,7 +34,7 @@
 
 #if defined(UseGPS_NMEA) || defined(UseGPS_UBLOX) || defined(UseGPS_MTK) || defined(UseGPS_406)
  #define UseGPS
-#endif 
+#endif
 
 #if defined(UseGPSNavigator) && !defined(AltitudeHoldBaro)
   #error "GpsNavigation NEED AltitudeHoldBaro defined"
@@ -50,7 +50,7 @@
 
 #if defined (CameraTXControl) && !defined (CameraControl)
   #error "CameraTXControl need to have CameraControl defined"
-#endif 
+#endif
 
 #if defined (OSD50HZ) && !defined (AeroQuadSTM32)
   #error "OSD can't be updated at that speed on artduino"
@@ -96,7 +96,7 @@
   #undef HeadingMagHold
   #undef BattMonitor
   #undef BattMonitorAutoDescent
-  #undef POWERED_BY_VIN        
+  #undef POWERED_BY_VIN
   #undef CameraControl
   #undef OSD
   #undef UseGPS
@@ -142,7 +142,7 @@
   #undef HeadingMagHold
   #undef BattMonitor
   #undef BattMonitorAutoDescent
-  #undef POWERED_BY_VIN        
+  #undef POWERED_BY_VIN
   #undef CameraControl
   #undef OSD
   #undef UseGPS
@@ -193,7 +193,7 @@
     #define BattDefaultConfig DEFINE_BATTERY(0, 0, 15, 0.9, BM_NOPIN, 0, 0)
   #else
     #undef BattMonitorAutoDescent
-    #undef POWERED_BY_VIN        
+    #undef POWERED_BY_VIN
   #endif
 
   #undef AltitudeHoldBaro
@@ -249,24 +249,24 @@
     #define MOTOR_PWM_Timer
   #else
     #define MOTOR_PWM
-  #endif    
+  #endif
 
   // heading mag hold declaration
   #ifdef HeadingMagHold
     #define HMC5843
   #endif
-  
+
   // Battery Monitor declaration
   #ifdef BattMonitor
     #define BattDefaultConfig DEFINE_BATTERY(0, 0, 15.0, 0.53, BM_NOPIN, 0, 0)
   #else
     #undef BattMonitorAutoDescent
-    #undef POWERED_BY_VIN        
+    #undef POWERED_BY_VIN
   #endif
 
   // unsupported in mini
   #undef AltitudeHoldBaro
-  #undef AltitudeHoldRangeFinder  
+  #undef AltitudeHoldRangeFinder
   #undef CameraControl
   #undef OSD
   #undef UseGPS
@@ -295,6 +295,81 @@
   }
 #endif
 
+#ifdef AeroQuad_nanoMPU
+  #define LED_Green 13
+  #define LED_Red 12
+  #define LED_Yellow 12
+
+  #include <Device_I2C.h>
+
+  // Gyroscope declaration
+  // Accelerometer declaration
+  #define MPU6000_I2C
+  #include <Platform_MPU6000.h>
+  #include <Gyroscope_MPU6000.h>
+  #include <Accelerometer_MPU6000.h>
+
+  // Receiver declaration
+  #define RECEIVER_328P
+
+  // Motor declaration
+  #if defined(quadXConfig) || defined(quadPlusConfig) || defined(quadY4Config)
+    #define MOTOR_PWM_Timer
+  #else
+    #define MOTOR_PWM
+  #endif
+
+  // heading mag hold declaration
+  #ifdef HeadingMagHold
+    #define HMC5843
+  #endif
+
+  // Battery Monitor declaration
+  #ifdef BattMonitor
+    #define BattDefaultConfig DEFINE_BATTERY(0, 0, 15.0, 0.53, BM_NOPIN, 0, 0)
+  #else
+    #undef BattMonitorAutoDescent
+    #undef POWERED_BY_VIN
+  #endif
+
+  // unsupported in mini
+  #undef AltitudeHoldBaro
+  #undef AltitudeHoldRangeFinder
+  #undef CameraControl
+  #undef OSD
+  #undef UseGPS
+  #undef UseGPSNavigator
+
+  /**
+   * Put AeroQuad_Mini specific initialization need here
+   */
+  void initPlatform() {
+
+    pinMode(LED_Red, OUTPUT);
+    digitalWrite(LED_Red, LOW);
+    pinMode(LED_Yellow, OUTPUT);
+    digitalWrite(LED_Yellow, LOW);
+
+    Wire.begin();
+    TWBR = 12;
+  }
+
+  /**
+   * Measure critical sensors
+   */
+	unsigned long previousMeasureCriticalSensorsTime = 0;
+	void measureCriticalSensors() {
+		// read sensors not faster than every 1 ms
+		if (currentTime - previousMeasureCriticalSensorsTime >= 1000) {
+			measureGyroSum();
+			measureAccelSum();
+			previousMeasureCriticalSensorsTime = currentTime;
+
+		}
+	}
+#endif
+
+
 #ifdef AeroQuadMega_v1
   #define LED_Green 13
   #define LED_Red 4
@@ -317,11 +392,11 @@
 
   // unsupported on mega v1
   #undef AltitudeHoldBaro
-  #undef AltitudeHoldRangeFinder  
+  #undef AltitudeHoldRangeFinder
   #undef HeadingMagHold
   #undef BattMonitor
   #undef BattMonitorAutoDescent
-  #undef POWERED_BY_VIN        
+  #undef POWERED_BY_VIN
   #undef CameraControl
   #undef OSD
 
@@ -369,11 +444,11 @@
   #endif
 
   // Altitude declaration
-  #ifdef AltitudeHoldBaro    
-    #define BMP085 
+  #ifdef AltitudeHoldBaro
+    #define BMP085
   #endif
   #ifdef AltitudeHoldRangeFinder
-    #define XLMAXSONAR 
+    #define XLMAXSONAR
   #endif
 
   // Battery Monitor declaration
@@ -385,13 +460,13 @@
     #endif
   #else
     #undef BattMonitorAutoDescent
-    #undef POWERED_BY_VIN        
+    #undef POWERED_BY_VIN
   #endif
 
   #ifdef OSD
     #define MAX7456_OSD
-  #endif  
-  
+  #endif
+
   #ifndef UseGPS
     #undef UseGPSNavigator
   #endif
@@ -462,7 +537,7 @@
     #define BMP085
   #endif
   #ifdef AltitudeHoldRangeFinder
-    #define XLMAXSONAR 
+    #define XLMAXSONAR
   #endif
 
 
@@ -475,13 +550,13 @@
     #endif
   #else
     #undef BattMonitorAutoDescent
-    #undef POWERED_BY_VIN        
+    #undef POWERED_BY_VIN
   #endif
 
   #ifdef OSD
     #define MAX7456_OSD
-  #endif  
-  
+  #endif
+
   #ifndef UseGPS
     #undef UseGPSNavigator
   #endif
@@ -549,7 +624,7 @@
     #define HMC5843
   #endif
   #ifdef AltitudeHoldRangeFinder
-    #define XLMAXSONAR 
+    #define XLMAXSONAR
   #endif
 
 
@@ -563,7 +638,7 @@
     #define BattDefaultConfig DEFINE_BATTERY(0, 0, 13.35, 0.31, BM_NOPIN, 0, 0)
   #else
     #undef BattMonitorAutoDescent
-    #undef POWERED_BY_VIN        
+    #undef POWERED_BY_VIN
   #endif
 
   #undef CameraControl
@@ -572,7 +647,7 @@
     #undef UseGPSNavigator
   #endif
 
-  
+
   /**
    * Put ArduCopter specific initialization need here
    */
@@ -623,11 +698,11 @@
   // heading mag hold declaration
   // unsupported on mega v1
   #undef AltitudeHoldBaro
-  #undef AltitudeHoldRangeFinder  
+  #undef AltitudeHoldRangeFinder
   #undef HeadingMagHold
   #undef BattMonitor
   #undef BattMonitorAutoDescent
-  #undef POWERED_BY_VIN        
+  #undef POWERED_BY_VIN
   #undef CameraControl
   #undef OSD
   #undef UseGPS
@@ -691,7 +766,7 @@
     #define BMP085
   #endif
   #ifdef AltitudeHoldRangeFinder
-    #define XLMAXSONAR 
+    #define XLMAXSONAR
   #endif
 
   // Battery monitor declaration
@@ -699,13 +774,13 @@
     #define BattDefaultConfig DEFINE_BATTERY(0, 0, 15.0, 0.9, BM_NOPIN, 0, 0)
   #else
     #undef BattMonitorAutoDescent
-    #undef POWERED_BY_VIN        
+    #undef POWERED_BY_VIN
   #endif
 
   #ifdef OSD
     #define MAX7456_OSD
   #endif
-  
+
   #undef UseGPS        // Wii not enough stable to use gps
   #undef UseGPSNavigator
 
@@ -769,7 +844,7 @@
     #define BMP085
   #endif
   #ifdef AltitudeHoldRangeFinder
-    #define XLMAXSONAR 
+    #define XLMAXSONAR
   #endif
 
   // Battery monitor declaration
@@ -777,9 +852,9 @@
     #define BattDefaultConfig DEFINE_BATTERY(0, 0, 13.35, 0.9, BM_NOPIN, 0, 0)
   #else
     #undef BattMonitorAutoDescent
-    #undef POWERED_BY_VIN        
+    #undef POWERED_BY_VIN
   #endif
-  
+
   #ifndef UseGPS
     #undef UseGPSNavigator
   #endif
@@ -851,21 +926,21 @@
     #define BMP085
   #endif
   #ifdef AltitudeHoldRangeFinder
-    #define XLMAXSONAR 
+    #define XLMAXSONAR
   #endif
-  
+
 
   // Battery monitor declaration
   #ifdef BattMonitor
     #define BattDefaultConfig DEFINE_BATTERY(0, 0, 13.35, 0.31, BM_NOPIN, 0, 0)
   #else
     #undef BattMonitorAutoDescent
-    #undef POWERED_BY_VIN        
+    #undef POWERED_BY_VIN
   #endif
 
   #undef CameraControl
   #undef OSD
-  
+
   #ifndef UseGPS
     #undef UseGPSNavigator
   #endif
@@ -953,12 +1028,12 @@
 #elif defined(RECEIVER_APM)
   #include <Receiver_APM.h>
 #elif defined(RECEIVER_STM32PPM)
-  #include <Receiver_STM32PPM.h>  
+  #include <Receiver_STM32PPM.h>
 #elif defined(RECEIVER_STM32)
-  #include <Receiver_STM32.h>  
+  #include <Receiver_STM32.h>
 #endif
 
-#if defined(UseAnalogRSSIReader) 
+#if defined(UseAnalogRSSIReader)
   #include <AnalogRSSIReader.h>
 #elif defined(UseEzUHFRSSIReader)
   #include <EzUHFRSSIReader.h>
@@ -974,7 +1049,7 @@
 #if defined(triConfig)
   #if defined (MOTOR_STM32)
     #define MOTORS_STM32_TRI
-    #include <Motors_STM32.h>    
+    #include <Motors_STM32.h>
   #else
     #include <Motors_Tri.h>
   #endif
@@ -987,7 +1062,7 @@
 #elif defined(MOTOR_I2C)
   #include <Motors_I2C.h>
 #elif defined(MOTOR_STM32)
-  #include <Motors_STM32.h>    
+  #include <Motors_STM32.h>
 #endif
 
 //********************************************************
@@ -1012,7 +1087,7 @@
 #endif
 #if defined(XLMAXSONAR)
   #include <MaxSonarRangeFinder.h>
-#endif 
+#endif
 //********************************************************
 //*************** BATTERY MONITOR DECLARATION ************
 //********************************************************
@@ -1068,7 +1143,7 @@
 #if defined(UseGPS)
   #if !defined(HeadingMagHold)
     #error We need the magnetometer to use the GPS
-  #endif 
+  #endif
   #include <GpsAdapter.h>
   #include "GpsNavigator.h"
 #endif
@@ -1097,13 +1172,13 @@
 //********************************************************
 //****************** SERIAL PORT DECLARATION *************
 //********************************************************
-#if defined(WirelessTelemetry) 
+#if defined(WirelessTelemetry)
   #if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
     #define SERIAL_PORT Serial3
   #else    // force 328p to use the normal port
     #define SERIAL_PORT Serial
   #endif
-#else  
+#else
   #if defined(SERIAL_USES_USB)   // STM32 Maple
     #define SERIAL_PORT SerialUSB
     #undef BAUD
@@ -1111,7 +1186,7 @@
   #else
     #define SERIAL_PORT Serial
   #endif
-#endif  
+#endif
 
 #ifdef SlowTelemetry
   #include <AQ_RSCode.h>
@@ -1131,7 +1206,7 @@
 
 #if defined(UseGPS) || defined(BattMonitor)
   #include "LedStatusProcessor.h"
-#endif  
+#endif
 
 #if defined(MavLink)
   #include "MavLink.h"
@@ -1181,7 +1256,7 @@ void setup() {
   // Rate integral not used for now
   PID[ATTITUDE_XAXIS_PID_IDX].windupGuard = 0.375;
   PID[ATTITUDE_YAXIS_PID_IDX].windupGuard = 0.375;
-  
+
   // Optional Sensors
   #ifdef AltitudeHoldBaro
     initializeBaro();
@@ -1200,7 +1275,7 @@ void setup() {
     initializeBatteryMonitor(sizeof(batteryData) / sizeof(struct BatteryData), batteryMonitorAlarmVoltage);
     vehicleState |= BATTMONITOR_ENABLED;
   #endif
-  
+
   #if defined(CameraControl)
     initializeCameraStabilization();
     vehicleState |= CAMERASTABLE_ENABLED;
@@ -1210,7 +1285,7 @@ void setup() {
     initializeSPI();
     initializeOSD();
   #endif
-  
+
   #if defined(SERIAL_LCD)
     InitSerialLCD();
   #endif
@@ -1224,17 +1299,17 @@ void setup() {
      binaryPort = &Serial;
     #endif
   #endif
-  
+
   #if defined(UseGPS)
     initializeGps();
-  #endif 
+  #endif
 
   #ifdef SlowTelemetry
      initSlowTelemetry();
   #endif
 
   setupFourthOrder();
-  
+
   // Initialize sensors
   // If sensors have a common initialization routine
   // insert it into the gyro class because it executes first
@@ -1262,19 +1337,19 @@ void setup() {
  * 100Hz task
  ******************************************************************/
 void process100HzTask() {
-  
+
   G_Dt = (currentTime - hundredHZpreviousTime) / 1000000.0;
   hundredHZpreviousTime = currentTime;
-  
+
   evaluateGyroRate();
   evaluateMetersPerSec();
 
   for (int axis = XAXIS; axis <= ZAXIS; axis++) {
     filteredAccel[axis] = computeFourthOrder(meterPerSecSec[axis], &fourthOrder[axis]);
   }
-    
+
   calculateKinematics(gyroRate[XAXIS], gyroRate[YAXIS], gyroRate[ZAXIS], filteredAccel[XAXIS], filteredAccel[YAXIS], filteredAccel[ZAXIS], G_Dt);
-  
+
   #if defined AltitudeHoldBaro || defined AltitudeHoldRangeFinder
     zVelocity = (filteredAccel[ZAXIS] * (1 - accelOneG * invSqrt(isq(filteredAccel[XAXIS]) + isq(filteredAccel[YAXIS]) + isq(filteredAccel[ZAXIS])))) - runTimeAccelBias[ZAXIS] - runtimeZBias;
     if (!runtimaZBiasInitialized) {
@@ -1283,32 +1358,32 @@ void process100HzTask() {
     }
     estimatedZVelocity += zVelocity;
     estimatedZVelocity = (velocityCompFilter1 * zVelocity) + (velocityCompFilter2 * estimatedZVelocity);
-  #endif    
+  #endif
 
   #if defined(AltitudeHoldBaro)
-    measureBaroSum(); 
+    measureBaroSum();
     if (frameCounter % THROTTLE_ADJUST_TASK_SPEED == 0) {  //  50 Hz tasks
       evaluateBaroAltitude();
     }
   #endif
-        
+
   processFlightControl();
-  
-  
+
+
   #if defined(BinaryWrite)
     if (fastTransfer == ON) {
       // write out fastTelemetry to Configurator or openLog
       fastTelemetry();
     }
-  #endif      
-  
+  #endif
+
   #ifdef SlowTelemetry
     updateSlowTelemetry100Hz();
   #endif
 
   #if defined(UseGPS)
     updateGps();
-  #endif      
+  #endif
 }
 
 /*******************************************************************
@@ -1319,8 +1394,8 @@ void process50HzTask() {
   fiftyHZpreviousTime = currentTime;
 
   // Reads external pilot commands and performs functions based on stick configuration
-  readPilotCommands(); 
-  
+  readPilotCommands();
+
   #if defined(UseAnalogRSSIReader) || defined(UseEzUHFRSSIReader) || defined(UseSBUSRSSIReader)
     readRSSI();
   #endif
@@ -1333,12 +1408,12 @@ void process50HzTask() {
     if (haveAGpsLock() && !isHomeBaseInitialized()) {
       initHomeBase();
     }
-  #endif      
-  
+  #endif
+
   #if defined(CameraControl)
     moveCamera(kinematicsAngle[YAXIS],kinematicsAngle[XAXIS],kinematicsAngle[ZAXIS]);
-  #endif       
-  
+  #endif
+
   #if defined CameraTXControl
     processCameraTXControl();
   #endif
@@ -1349,7 +1424,7 @@ void process50HzTask() {
       updateOSD();
     #endif
   #endif
-    
+
 }
 
 /*******************************************************************
@@ -1359,11 +1434,11 @@ void process10HzTask1() {
   #if defined(HeadingMagHold)
     G_Dt = (currentTime - tenHZpreviousTime) / 1000000.0;
     tenHZpreviousTime = currentTime;
-     
+
     measureMagnetometer(kinematicsAngle[XAXIS], kinematicsAngle[YAXIS]);
-    
+
     calculateHeading();
-    
+
   #endif
 }
 
@@ -1373,7 +1448,7 @@ void process10HzTask1() {
 void process10HzTask2() {
   G_Dt = (currentTime - lowPriorityTenHZpreviousTime) / 1000000.0;
   lowPriorityTenHZpreviousTime = currentTime;
-  
+
   #if defined(BattMonitor)
     measureBatteryVoltage(G_Dt*1000.0);
   #endif
@@ -1399,25 +1474,25 @@ void process10HzTask3() {
       updateOSD();
     #endif
     #endif
-    
+
     #if defined(UseGPS) || defined(BattMonitor)
       processLedStatus();
     #endif
-    
+
     #ifdef SlowTelemetry
       updateSlowTelemetry10Hz();
     #endif
 }
 
 /*******************************************************************
- * 1Hz task 
+ * 1Hz task
  ******************************************************************/
 void process1HzTask() {
   #ifdef MavLink
     G_Dt = (currentTime - oneHZpreviousTime) / 1000000.0;
     oneHZpreviousTime = currentTime;
-    
-    sendSerialHeartbeat();   
+
+    sendSerialHeartbeat();
   #endif
 }
 
@@ -1425,7 +1500,7 @@ void process1HzTask() {
  * Main loop funtions
  ******************************************************************/
 void loop () {
-  
+
   currentTime = micros();
   deltaTime = currentTime - previousTime;
 
@@ -1435,9 +1510,9 @@ void loop () {
   // 100Hz task loop
   // ================================================================
   if (deltaTime >= 10000) {
-    
+
     frameCounter++;
-    
+
     process100HzTask();
 
     // ================================================================
@@ -1459,17 +1534,17 @@ void loop () {
     else if ((currentTime - lowPriorityTenHZpreviousTime2) > 100000) {
       process10HzTask3();
     }
-    
+
     // ================================================================
     // 1Hz task loop
     // ================================================================
     if (frameCounter % TASK_1HZ == 0) {  //   1 Hz tasks
       process1HzTask();
     }
-    
+
     previousTime = currentTime;
   }
-  
+
   if (frameCounter >= 100) {
       frameCounter = 0;
   }

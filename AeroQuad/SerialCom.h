@@ -904,6 +904,8 @@ void reportVehicleState() {
     SERIAL_PRINTLN("APM w/ CHR6DM");
   #elif defined(AeroQuad_Mini)
     SERIAL_PRINTLN("Mini");
+  #elif defined(AeroQuad_nanoMPU)
+    SERIAL_PRINTLN("nanoMPU");
   #elif defined(AeroQuadSTM32)
     SERIAL_PRINTLN(STM32_BOARD_TYPE);
   #endif
