@@ -1338,6 +1338,12 @@ void process50HzTask() {
       initHomeBase();
     }
   #endif      
+
+  #ifdef MAX7456_OSD
+    #ifdef AQ_CPU_IS_FAST
+      updateOSD();
+    #endif
+  #endif
 }
 
 /*******************************************************************
@@ -1385,7 +1391,9 @@ void process10HzTask3() {
     #endif
 
     #ifdef MAX7456_OSD
-      updateOSD();
+      #ifndef AQ_CPU_IS_FAST
+        updateOSD();
+      #endif
     #endif
     
     #if defined(UseGPS) || defined(BattMonitor)

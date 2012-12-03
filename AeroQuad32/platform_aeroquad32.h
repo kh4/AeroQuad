@@ -35,6 +35,7 @@
 	};
 #endif
 
+        #define AQ_CPU_IS_FAST // moves some things like OSD to faster loop
 
 	#define STM32_BOARD_TYPE "aeroquad32"
 	#define LED_Green  Port2Pin('E', 6)
