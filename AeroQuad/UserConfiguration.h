@@ -193,6 +193,7 @@
 //#define CALLSIGN "KF7YRK"         // Show (optional) callsign
 //#define ShowAttitudeIndicator     // Display the attitude indicator calculated by the AHRS
 //#define USUnits                   // Enable for US units (feet,miles,mph), leave uncommented for metric units (meter,kilometer,km/h)
+//#define OSD_LOADFONT              // Include MAX7456 font into binary, give & on serial to upload
 
 //#define OSD_SYSTEM_MENU           // Menu system, currently only usable with OSD or SERIAL_LCD
 
