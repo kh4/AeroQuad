@@ -254,13 +254,13 @@ void readPilotCommands() {
     }
   }
 
-  // Check Mode switch for Acro or Stable
-  if (receiverCommand[MODE] > 1500) {
-    flightMode = ATTITUDE_FLIGHT_MODE;
-  }
-  else {
-    flightMode = RATE_FLIGHT_MODE;
-  }
+    // Check Mode switch for Acro or Stable
+    if (receiverCommand[MODE] > 1500) {
+        flightMode = ATTITUDE_FLIGHT_MODE;
+    }
+    else {
+        flightMode = RATE_FLIGHT_MODE;
+    }
 
 
   #if defined AltitudeHoldBaro || defined AltitudeHoldRangeFinder
