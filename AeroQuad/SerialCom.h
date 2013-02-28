@@ -136,7 +136,6 @@ void readSerialCommand() {
       writeEEPROM();
       storeSensorsZeroToEEPROM();
       calibrateGyro();
-      computeAccelBias();
       zeroIntegralError();
       #ifdef HeadingMagHold
         initializeMagnetometer();
@@ -148,16 +147,16 @@ void readSerialCommand() {
 
     case 'J': // calibrate gyros
       calibrateGyro();
-      storeSensorsZeroToEEPROM();
       break;
 
     case 'K': // Write accel calibration values
       accelScaleFactor[XAXIS] = readFloatSerial();
-      runTimeAccelBias[XAXIS] = readFloatSerial();
+      readFloatSerial();
       accelScaleFactor[YAXIS] = readFloatSerial();
-      runTimeAccelBias[YAXIS] = readFloatSerial();
+      readFloatSerial();
       accelScaleFactor[ZAXIS] = readFloatSerial();
-      runTimeAccelBias[ZAXIS] = readFloatSerial();
+      readFloatSerial();
+      computeAccelBias();    
       storeSensorsZeroToEEPROM();
       break;
 
@@ -354,14 +353,14 @@ void PrintDummyValues(byte number) {
 }
 
 
-float GetHeading()
+float getHeading()
 {
   #if defined(HeadingMagHold) || defined(AeroQuadMega_CHR6DM) || defined(APM_OP_CHR6DM)
-	float heading = trueNorthHeading;
-	if (heading < 0){
+    float heading = trueNorthHeading;
+    if (heading < 0) { 
       heading += (2.0 * M_PI);
-	}
-  	return heading;
+    }
+    return heading;
   #else
     return(gyroHeading);
   #endif
@@ -428,7 +427,7 @@ void sendSerialTelemetry() {
     for (byte axis = XAXIS; axis < LASTCHANNEL; axis++) {
       PrintValueComma(receiverSmoothFactor[axis]);
     }
-	PrintDummyValues(10 - LASTCHANNEL);
+    PrintDummyValues(10 - LASTCHANNEL);
     SERIAL_PRINTLN();
     queryType = 'X';
     break;
@@ -577,14 +576,14 @@ void sendSerialTelemetry() {
   case 'r': // Vehicle attitude
     PrintValueComma(kinematicsAngle[XAXIS]);
     PrintValueComma(kinematicsAngle[YAXIS]);
-    SERIAL_PRINTLN(GetHeading());
+    SERIAL_PRINTLN(getHeading());
     break;
 
   case 's': // Send all flight data
     PrintValueComma(motorArmed);
     PrintValueComma(kinematicsAngle[XAXIS]);
     PrintValueComma(kinematicsAngle[YAXIS]);
-    PrintValueComma(GetHeading());
+    PrintValueComma(getHeading());
     #if defined AltitudeHoldBaro || defined AltitudeHoldRangeFinder
       #if defined AltitudeHoldBaro
         PrintValueComma(getBaroAltitude());
@@ -664,9 +663,16 @@ void sendSerialTelemetry() {
     SERIAL_PRINTLN();
     break;
     
-  case 'z': // send rangeFinderRange
-    #if defined (AltitudeHoldRangeFinder)
+  case 'z': // Send all Altitude data 
+    #if defined (AltitudeHoldBaro) 
+      PrintValueComma(getBaroAltitude()); 
+    #else
+      PrintValueComma(0);
+    #endif 
+    #if defined (AltitudeHoldRangeFinder) 
       SERIAL_PRINTLN(rangeFinderRange[ALTITUDE_RANGE_FINDER_INDEX]);
+    #else
+      SERIAL_PRINTLN(0); 
     #endif
     break;
     
@@ -675,9 +681,9 @@ void sendSerialTelemetry() {
       PrintValueComma((float)batteryData[0].voltage/100.0); // voltage internally stored at 10mV:s
       #if defined (BM_EXTENDED)
         PrintValueComma((float)batteryData[0].current/100.0);
-		PrintValueComma((float)batteryData[0].usedCapacity/1000.0);
-	  #else
-		PrintDummyValues(2);
+        PrintValueComma((float)batteryData[0].usedCapacity/1000.0);
+      #else
+        PrintDummyValues(2);
       #endif
     #else
       PrintDummyValues(3);
@@ -713,6 +719,16 @@ void sendSerialTelemetry() {
     SERIAL_PRINTLN();
     queryType = 'X';
     break;
+
+#if defined(OSD) && defined(OSD_LOADFONT)
+  case '&': // fontload
+    if (OFF == motorArmed) {
+      max7456LoadFont();
+    }
+    queryType = 'X';
+    break;
+#endif
+
   }
 }
 
@@ -863,10 +879,12 @@ void fastTelemetry()
 #endif // BinaryWrite
 
 void printVehicleState(const char *sensorName, unsigned long state, const char *message) {
+  
   SERIAL_PRINT(sensorName);
   SERIAL_PRINT(": ");
-  if (!(vehicleState & state))
+  if (!(vehicleState & state)) {
     SERIAL_PRINT("Not ");
+  }
   SERIAL_PRINTLN(message);
 }
 
@@ -957,7 +975,7 @@ void reportVehicleState() {
   SERIAL_PRINT("@");
   SERIAL_PRINTLN(gpsBaudRates[gpsData.baudrate]);
 #else
-  SERIAL_PRINTLN("GPS: Disabled");
+  SERIAL_PRINTLN("GPS: Not Enabled");
 #endif
 }
 
@@ -1001,15 +1019,15 @@ void reportVehicleState() {
   void updateSlowTelemetry100Hz() {
 
     if (slowTelemetryByte < TELEMETRY_MSGSIZE_ECC ) {
-#ifdef SoftModem
-      if (softmodemFreeToSend()) {
-	softmodemSendByte(telemetryBuffer.bytes[slowTelemetryByte]);
-	slowTelemetryByte++;
-      }
-#else
-      Serial2.write(telemetryBuffer.bytes[slowTelemetryByte]);
-      slowTelemetryByte++;
-#endif
+      #ifdef SoftModem
+        if (softmodemFreeToSend()) {
+	  softmodemSendByte(telemetryBuffer.bytes[slowTelemetryByte]);
+	  slowTelemetryByte++;
+        }
+      #else
+        Serial2.write(telemetryBuffer.bytes[slowTelemetryByte]);
+        slowTelemetryByte++;
+      #endif
     }
     else {
       slowTelemetryByte=255;
