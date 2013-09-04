@@ -401,6 +401,19 @@
 
 		}
 	}
+
+// called when eeprom is initialized
+void initializePlatformSpecificAccelCalibration() {
+  accelScaleFactor[XAXIS] =  0.0012;
+  accelScaleFactor[YAXIS] = -0.0012;
+  accelScaleFactor[ZAXIS] = -0.0012;
+  #ifdef HeadingMagHold
+    magBias[XAXIS]  = 152.000000;
+    magBias[YAXIS]  = 24.000000;
+    magBias[ZAXIS]  = 16.500000;
+  #endif
+}
+
 #endif
 
 
